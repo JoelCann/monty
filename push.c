@@ -1,51 +1,48 @@
 #include "monty.h"
-#include <ctype.h>
-
 /**
- * check_for_digit - checks that a string only contains digits
- * @arg: string to check
- *
- * Return: 0 if only digits, else 1
+ * check_digit - check if string is a number
+ * @param: param to push
+ * @line_count: current line number
+ * Return: number
  */
-static int check_for_digit(char *arg)
+int check_digit(char *param, unsigned int line_count)
 {
-	int i;
+	int num;
 
-	for (i = 0; arg[i]; i++)
+	num = atoi(param);
+	if (num == 0 && strcmp(param, "0") != 0)
 	{
-		if (arg[i] == '-' && i == 0)
-			continue;
-		if (isdigit(arg[i]) == 0)
-			return (1);
+		dprintf(2, "L%u: usage: push integer\n", line_count);
+		free_all();
+		exit(EXIT_FAILURE);
 	}
-	return (0);
+	return (num);
 }
 
 /**
- * m_push - push an integer onto the stack
- * @stack: double pointer to the beginning of the stack
- * @line_number: script line number
- *
- * Return: void
+ * m_push - it pushes an element to the stack.
+ * @node: pointer to head
+ * @line_count: current line number
+ * Return: void function
  */
-void m_push(stack_t **stack, unsigned int line_number)
+void m_push(stack_t **node, unsigned int line_count)
 {
-	char *arg;
-	int n;
+	int num;
+	char *param;
 
-	arg = strtok(NULL, "\n\t\r ");
-	if (arg == NULL || check_for_digit(arg))
+	param = strtok(NULL, SEPARATORS);
+
+	if (!param)
 	{
-		dprintf(STDOUT_FILENO,
-			"L%u: usage: push integer\n",
-			line_number);
+		dprintf(2, "L%u: usage: push integer\n", line_count);
+		free_all();
 		exit(EXIT_FAILURE);
 	}
-	n = atoi(arg);
-	if (!add_node(stack, n))
+	num = check_digit(param, line_count);
+	if (!add_node(node, num))
 	{
-		dprintf(STDOUT_FILENO, "Error: malloc failed\n");
+		dprintf(2, "Error: malloc failed\n");
+		free_all();
 		exit(EXIT_FAILURE);
 	}
-	var.stack_len++;
 }
